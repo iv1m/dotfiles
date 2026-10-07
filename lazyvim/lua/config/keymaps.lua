@@ -13,8 +13,5 @@ keymap("n", "<right>", '<cmd>echo "Use l to move!!"<CR>')
 keymap("n", "<up>", '<cmd>echo "Use k to move!!"<CR>')
 keymap("n", "<down>", '<cmd>echo "Use j to move!!"<CR>')
 
-keymap("n", "H", "gT", { desc = "Previous tab" })
-keymap("n", "L", "gt", { desc = "Next tab" })
-
 keymap("n", "|", "<cmd>vsplit<CR>", { desc = "Vertical split" })
 keymap("n", "_", "<cmd>split<CR>", { desc = "Horizontal split" })
