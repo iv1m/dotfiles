@@ -1,0 +1,208 @@
+meta:
+  repo: ~/projects/dotfiles
+  platform: macOS (arm64), Homebrew
+  link_mode: copy
+  theme: gruvbox dark
+  accent_color: "#d79921"
+
+layout:
+
+  ghostty:
+    description: Terminal. Font, 0.80 opacity, black background, Catppuccin Mocha theme.
+    files:
+      - source: ghostty/config
+        target: ~/.config/ghostty/config
+    reload: "Cmd+Shift+,"
+
+  tmux:
+    description: Multiplexer. Ctrl-a prefix, gruvbox status bar, windows numbered 1..N with automatic renumbering.
+    files:
+      - source: tmux/tmux.conf
+        target: ~/.config/tmux/tmux.conf
+    managed_elsewhere:
+      - target: ~/.config/tmux/plugins/
+        note: see requirements.tmux_plugins
+    reload: "prefix + r   (or: tmux source-file ~/.config/tmux/tmux.conf)"
+
+  nvim:
+    description: Main Neovim config. LazyVim + gruvbox (transparent background) + lualine with a yellow mode block.
+    files:
+      - source: nvim/
+        target: ~/.config/nvim/
+        type: directory
+    key_files:
+      - nvim/lua/plugins/colorscheme.lua
+      - nvim/lua/config/lazy.lua
+      - nvim/lazy-lock.json
+      - nvim/lazyvim.json
+
+  nvim_custom:
+    description: Your own older Neovim config. Kept as an archive, not wired up to anything.
+    optional: true
+    files:
+      - source: nvim-custom/
+        target: ~/.config/nvim-custom/
+        type: directory
+    usage: "NVIM_APPNAME=nvim-custom nvim"
+
+  herdr:
+    description: Agent multiplexer (herdr). gruvbox theme, Ctrl+R shortcut for reviewr.
+    files:
+      - source: herdr/config.toml
+        target: ~/.config/herdr/config.toml
+      - source: herdr/plugins/config/persiyanov.reviewr/config.toml
+        target: ~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml
+    note: >
+      The reviewr plugin itself is installed with a command (see requirements.herdr_plugins);
+      only its config lives here (overlay, last-turn, gruvbox).
+
+  lazygit:
+    description: Git TUI. Only the active panel border is recolored with accent_color.
+    files:
+      - source: lazygit/config.yml
+        target: "~/Library/Application Support/lazygit/config.yml"
+        target_linux: ~/.config/lazygit/config.yml
+
+  zsh:
+    description: Shell. oh-my-zsh + powerlevel10k, bun, nvm, alias v=nvim.
+    files:
+      - source: zsh/.zshrc
+        target: ~/.zshrc
+      - source: zsh/.p10k.zsh
+        target: ~/.p10k.zsh
+    note: "The path /Users/ivan.melnik/.bun is hardcoded in .zshrc. Adjust it on another machine or user."
+
+requirements:
+
+  homebrew:
+    formulae:
+      - name: git
+        for: everything (lazy.nvim, tpm and oh-my-zsh are cloned with git)
+      - name: neovim
+        for: nvim
+      - name: tmux
+        for: tmux
+      - name: lazygit
+        for: lazygit
+      - name: herdr
+        for: herdr
+      - name: powerlevel10k
+        for: zsh prompt (.zshrc sources /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme)
+      - name: ripgrep
+        for: nvim (file search, LazyVim/snacks)
+      - name: fzf
+        for: shell and nvim (fuzzy search)
+      - name: fd
+        for: nvim (file search, recommended by LazyVim)
+        optional: true
+        status: not installed right now
+    casks:
+      - name: ghostty
+        for: terminal
+
+  fonts:
+    - name: MesloLGS NF
+      for: ghostty (font-family) and powerlevel10k icons
+      how: >
+        Download the 4 MesloLGS NF files (Regular/Bold/Italic/Bold Italic) from the
+        romkatv/powerlevel10k-media repository, or accept the font install offered by `p10k configure`.
+        It must be exactly "MesloLGS NF", not the "Meslo Nerd Font" from brew. The names differ.
+
+  scripts:
+    - name: oh-my-zsh
+      for: zsh
+      target: ~/.oh-my-zsh
+      install: 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+      note: The installer creates its own ~/.zshrc. After installing, overwrite it with zsh/.zshrc.
+      plugins:
+        - git
+    - name: nvm
+      for: zsh (Node.js)
+      target: ~/.nvm
+      install: 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash'
+      after: "nvm install 22"
+    - name: bun
+      for: zsh (JS runtime, added to PATH in .zshrc)
+      target: ~/.bun
+      install: 'curl -fsSL https://bun.sh/install | bash'
+
+  tmux_plugin_manager:
+    name: tpm
+    repo: tmux-plugins/tpm
+    install: git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+    install_plugins: "inside tmux press prefix + I (prefix = Ctrl-a)"
+
+  tmux_plugins:
+    - repo: tmux-plugins/tpm
+      purpose: plugin manager
+    - repo: omerxx/tmux-floax
+      purpose: floating window (prefix + p)
+    - repo: tmux-plugins/tmux-resurrect
+      purpose: save and restore sessions
+    - repo: tmux-plugins/tmux-continuum
+      purpose: automatic session saving every 15 minutes and automatic restore
+
+  neovim:
+    plugin_manager:
+      name: lazy.nvim
+      note: Downloads itself on the first nvim start (bootstrap in lua/config/lazy.lua). No manual install needed.
+    distribution: LazyVim/LazyVim
+    extras:
+      - lazyvim.plugins.extras.lang.json
+      - lazyvim.plugins.extras.lang.markdown
+    custom_plugins:
+      - repo: ellisonleao/gruvbox.nvim
+        file: lua/plugins/colorscheme.lua
+        purpose: gruvbox theme (dark, hard contrast, transparent background)
+      - repo: nvim-lualine/lualine.nvim
+        file: lua/plugins/colorscheme.lua
+        purpose: bottom bar, yellow mode block, transparent middle (ships with LazyVim)
+    disabled:
+      - folke/noice.nvim
+    first_run: "Start nvim and wait for the plugins to install, then run :checkhealth. Mason installs LSPs and formatters."
+    needs: [git, ripgrep]
+
+  herdr_plugins:
+    - id: persiyanov.reviewr
+      repo: persiyanov/herdr-reviewr
+      install: herdr plugin install persiyanov/herdr-reviewr
+      purpose: review agent diffs and add line comments (Ctrl+R toggles it)
+      requires: open it inside a git repository, otherwise it fails with "no repo to review"
+
+  zsh_extras:
+    prompt_theme: powerlevel10k
+    configure: "p10k configure"
+
+setup_order:
+  - step: 1
+    do: Install Homebrew
+  - step: 2
+    do: "brew install git neovim tmux lazygit herdr powerlevel10k ripgrep fzf fd && brew install --cask ghostty"
+  - step: 3
+    do: Install the MesloLGS NF font (requirements.fonts)
+  - step: 4
+    do: Install oh-my-zsh, nvm and bun (requirements.scripts)
+  - step: 5
+    do: Copy every file from layout.*.files to its place (source -> target)
+  - step: 6
+    do: "tmux: git clone tpm, then press prefix + I inside tmux"
+  - step: 7
+    do: "nvim: just start it, lazy.nvim installs the plugins by itself"
+  - step: 8
+    do: "herdr plugin install persiyanov/herdr-reviewr"
+  - step: 9
+    do: "Restart the terminal, tmux and herdr. Fix the hardcoded paths in zsh/.zshrc if the user is different"
+
+not_tracked:
+  - path: ~/.zsh_history
+    why: personal command history, may contain secrets
+  - path: ~/.config/herdr/{*.sock,*.log,session.json,session-snapshots,plugins.json,plugins/github-installations}
+    why: herdr runtime files (sockets, logs, session state, installed plugins) that are recreated automatically
+  - path: ~/.config/tmux/plugins/
+    why: installed by tpm from the list in requirements.tmux_plugins
+  - path: ~/.local/share/nvim/
+    why: nvim plugins, downloaded by lazy.nvim
+  - path: ~/Library/Application Support/lazygit/state.yml
+    why: lazygit state (recent repositories)
+  - path: ~/.config/{btop,zellij,git}
+    why: present on the machine but not added to dotfiles yet
