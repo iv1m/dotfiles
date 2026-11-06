@@ -1,25 +1,15 @@
+-- Options are automatically loaded before lazy.nvim startup
+-- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
+-- Add any additional options here
+
 local opt = vim.opt
 
-opt.number = true
-opt.relativenumber = true
-opt.mouse = 'a'
-opt.showmode = false
 opt.breakindent = true
-opt.undofile = true
-opt.ignorecase = true
-opt.smartcase = true
-opt.signcolumn = 'yes'
 opt.updatetime = 250
-opt.timeoutlen = 300
-opt.splitright = true
-opt.splitbelow = true
-opt.list = true
-opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
-opt.inccommand = 'split'
-opt.cursorline = true
+opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+opt.inccommand = "split"
 opt.scrolloff = 10
-opt.confirm = true
 
 vim.schedule(function()
-  opt.clipboard = 'unnamedplus'
+  opt.clipboard = "unnamedplus"
 end)
