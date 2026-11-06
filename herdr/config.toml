@@ -1,0 +1,16 @@
+onboarding = false
+
+[ui.toast]
+delivery = "terminal"
+
+[ui.sound]
+enabled = true
+
+[theme]
+name = "gruvbox"
+auto_switch = false
+
+[[keys.command]]
+key = "ctrl+r"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"

@@ -1,0 +1,4 @@
+default_scope = "last-turn"
+toggle_placement = "overlay"
+diff_view = "unified"
+theme = "gruvbox"
